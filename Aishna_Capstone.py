@@ -41,8 +41,8 @@ class Player(spgl.Sprite):
 	
 	def down(self):
 		self.set_image("Mario_Crouch.gif", 150, 145)
-		self.sety(-95)
 		self.state = "crouching"
+		self.sety(-105)
 				
 	def tick(self):
 		self.setx(self.xcor())
@@ -52,6 +52,9 @@ class Player(spgl.Sprite):
 			self.y_speed = 1
 			self.sety(-95)
 			self.state = "running"
+			
+			if self.state == "crouching":
+				self.sety(-200)
 			
 		self.y_acceleration += game.gravity
 		self.y_speed += self.y_acceleration
@@ -77,8 +80,23 @@ class Shell(spgl.Sprite):
 
 class Coin(spgl.Sprite):
 	def __init__(self, shape, color, x, y):
-		spgl.Sprite.__init__(self, shape, color, x, y)
+		spgl.Sprite.__init__(self, shape, color, x, y)	
+		self.frame = 0
+		self.speed = -10
+		self.shape("coin.gif")
 
+	def tick(self):
+		self.fd(self.speed)
+
+class Banana(spgl.Sprite):
+	def __init__(self, shape, color, x, y):
+		spgl.Sprite.__init__(self, shape, color, x, y)	
+		self.frame = 0
+		self.speed = -10
+		self.shape("banana.gif")
+
+	def tick(self):
+		self.fd(self.speed)
 
 # Create Functions
 
@@ -89,9 +107,14 @@ game.gravity = -1
 # Create Sprites
 ground = Game("ground.gif", "blue", 0, -110)
 player = Player("mario_run.gif", "blue", -200, -100)
-shell = Shell("shell.gif", "red",random.randint(100,1000), -6)
-plant = Plant("plant.gif", "white", random.randint(100,1000), -100)
+player.set_image("mario_run.gif", 90, 116)
+shell = Shell("shell.gif", "red",random.randint(105,1000), -6)
+shell.set_image("shell.gif",106, 113)
+plant = Plant("plant.gif", "white", random.randint(95,1000), -100)
+coin = Coin("coin.gif", "white", random.randint(100,1000), -6)
+banana = Banana("banana.gif", "black", random.randint(100,1000), -130)
 
+objects = [shell, plant, coin, banana]
 
 # Create Label
 label_name = spgl.Label("MARIO RUN", "white", -70, 150)  
@@ -105,6 +128,8 @@ lives_label = spgl.Label("Lives: 3", "white", -280, 280)
 game.set_keyboard_binding(spgl.KEY_UP, player.up)
 game.set_keyboard_binding(spgl.KEY_DOWN, player.down)
 
+if player.score > 100:
+	banana = Banana("banana.gif", "black", random.randint(100,1000), -130)
 
 while True:
     # Call the game tick method
@@ -116,33 +141,76 @@ while True:
 	if game.is_collision(player, plant):
 		player.lives += -1
 		lives_label.update("Lives: {}".format(player.lives))
-		plant.goto(random.randint(300,600), -100)
+		
+		max_x = -400
+		for object in objects:
+			if object.xcor() > max_x:
+				max_x = object.xcor()
+		
+		plant.goto(random.randint(300,600) + max_x, -100)
 		
 	if game.is_collision(player, shell):
 		player.lives += -1
 		lives_label.update("Lives: {}".format(player.lives))
-		shell.goto(random.randint(600,900), -20)
+		max_x = -400
+		for object in objects:
+			if object.xcor() > max_x:
+				max_x = object.xcor()
+	
+		shell.setx(random.randint(600,900) + max_x)
 
-	if player.xcor() == plant.xcor() and player.xcor() == shell.xcor():
-		player.score += 1
+	if game.is_collision(player, coin):
+		player.score += 50
+		lives_label.update("Lives: {}".format(player.lives))
+		
+		max_x = -400
+		for object in objects:
+			if object.xcor() > max_x:
+				max_x = object.xcor()
+	
+		coin.setx(random.randint(600,900) + max_x)
+
+	if game.is_collision(player, banana):
+		player.lives += -1
+		lives_label.update("Lives: {}".format(player.lives))
+		
+		max_x = -400
+		for object in objects:
+			if object.xcor() > max_x:
+				max_x = object.xcor()
+	
+		banana.setx(random.randint(300,600) + max_x)		
+
+# 	if player.xcor() == plant.xcor() and player.xcor() == shell.xcor():
+# 		player.score += 1
 		
 	if plant.xcor() < -500:
 		plant.goto(random.randint(300,600), -100)
 		
 	if shell.xcor() < -500:
 		shell.goto(random.randint(600,900), -20)
+	
+	if coin.xcor() < -500:
+		coin.goto(random.randint(600,900), -20)
+
 
 	if player.score >500:
 		plant.speed = -15
 		shell.speed = -15
-
+		coin.speed = -15
+		banana.speed = -15
+		
 	if player.score >1000:
 		plant.speed = -17
 		shell.speed = -17	
-		
+		coin.speed = -17
+		banana.speed = -17
+			
 	if player.score >1500:
 		plant.speed = -19
 		shell.speed = -19	
+		coin.speed = -19
+		banana.speed = -19
 		
 # 	if player.lives < 0:
 # 		label_name = spgl.Label("GAME OVER", "white", -200, 100)  
