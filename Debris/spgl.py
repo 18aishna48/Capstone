@@ -1,4 +1,4 @@
-# Simple Python Game Library Version 0.8.5.5 by /u/wynand1004 AKA @TokyoEdTech
+# Simple Python Game Library Version 0.8.3 by /u/wynand1004 AKA @TokyoEdTech
 # Documentation on Github: https://wynand1004.github.io/SPGL
 # Python 2.x and 3.x Compatible
 
@@ -243,17 +243,10 @@ class Game(object):
         self.title = title
 
     def set_keyboard_binding(self, key, function):
-        # Allow any order of arguments as this is reversed from Tkinter
-        # Check if key is a string. If not, reverse the arguments
-        if type(key) is not str:
-            temp = key
-            key = function
-            function = temp
-
-        # Python 3
+        #Python 3
         try:
             turtle.onkeypress(function, key)
-        # Python 2
+        #Python 2
         except:
             turtle.onkey(function, key)
 
@@ -323,13 +316,13 @@ class Game(object):
         y_collision = (math.fabs(sprite_1.ycor() - sprite_2.ycor()) * 2) < (sprite_1.height + sprite_2.height)
         return (x_collision and y_collision)
 
-    def is_circle_collision(self, sprite_1, sprite_2, radius):
+    def is_circle_collision(sprite_1, sprite_2, distance):
         # Collision based on distance
     	a=sprite_1.xcor()-sprite_2.xcor()
     	b=sprite_1.ycor()-sprite_2.ycor()
     	distance = math.sqrt((a**2) + (b**2))
 
-    	if distance < radius:
+    	if distance < distance:
     		return True
     	else:
     		return False
@@ -424,7 +417,7 @@ class Sprite(turtle.Turtle):
                 Game.logs.append("Warning: {} file missing from disk.".format(image))
 
                 # Set placeholder shape
-                image = "square"
+                shape = "square"
                 width = 20 # This is the default for turtle module primitives
                 height = 20 # This is the default for turtle module primitives
 
@@ -435,25 +428,8 @@ class Sprite(turtle.Turtle):
         # Click binding needs to be set again after image change
         self.onclick(self.click)
 
-    def set_bounding_box(self, width, height):
-        self.width = width
-        self.height = height
-
     def click(self, x, y):
         print ("The sprite was clicked at ({},{})".format(x, y))
-
-    def rotate_left(self, degrees):
-        self.lt(degrees)
-		
-    def rotate_right(self, degrees):
-        self.rt(degrees)
-		
-    def go_forward(self, distance):
-        self.fd(distance)
-		
-    def go_backward(self, distance):
-        self.fd(-distance)
-		
 
 #Label Class
 class Label(turtle.Turtle):
@@ -472,14 +448,12 @@ class Label(turtle.Turtle):
         self.penup()
         self.goto(x, y)
         self.color(color)
-        self.font_name = font_name
-        self.font_size = font_size
-        self.font_type = font_type
         self.font = (font_name, font_size, font_type)
         self.align = align
 
         # Attributes
         self.text = text
+
 
         # Append to master label list
         Game.labels.append(self)
@@ -491,20 +465,6 @@ class Label(turtle.Turtle):
     def update(self, text):
         self.text = text
         self.tick()
-        
-    def set_font_name(self, font_name):
-        self.font_name = font_name
-        self.font = (self.font_name, self.font_size, self.font_type)
-
-    def set_font_size(self, font_size):
-        self.font_size = font_size
-        self.font = (self.font_name, self.font_size, self.font_type)
-        
-    def set_font_type(self, font_type):
-        self.font_type = font_type
-        self.font = (self.font_name, self.font_size, self.font_type)
-    
-
 
 #Button Class
 class Button(turtle.Turtle):
